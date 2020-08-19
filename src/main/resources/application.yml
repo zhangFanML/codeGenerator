@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: mySpringBoot
+  profiles:
+    active:
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password:
+
+server:
+  tomcat:
+    uri-encoding: UTF-8
+    threads:
+      max: 1000
+    accept-count: 2000
+  port: 8001
+
+#jwt
+jwt:
+  header: Authorization
+  secret: mySecret
+  # token 过期时间 2个小时
+  expiration: 7200000000
+  auth:
+    # 授权路径
+    path: /api/v1/system/login
+    # 获取用户信息
+    account: /api/v1/system/login
+
+
+logging:
+  config: classpath:my-logback-spring.xml

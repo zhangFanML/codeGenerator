@@ -1,0 +1,10 @@
+.combox { float:left; margin-right:3px; background-position:100% -25px;}
+.combox select { display:none}
+.combox .select { float:left;}
+.combox .select a { float:left; display:block; overflow:hidden; height:23px; padding:0 22px 0 6px; line-height:21px; text-decoration:none; font-size:12px; background-position:100% -50px;}
+.combox .select.disabled a{color:#999}
+.comboxop { position: absolute; z-index: 1001; display:none; padding:4px; border-style:solid; border-width:1px 2px 2px 1px; background:#fff; position:absolute; top:22px; left:1px;}
+.comboxop a { width:50px; height:21px; padding:0 5px; line-height:21px; text-align:left; color:#000; background:none;}
+.comboxop a:hover { background:#e0e0e0;}
+.comboxop .selected { background:#e0e0e0; }
+.comboxop li { text-align:left; }

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CreateCodeMapper">
+
+	<!--url:jdbc:oracle:thin:@10.5.102.70:1521:XDKFDB-->
+	<!--driverClassName:oracle.jdbc.driver.OracleDriver-->
+	<!--username:easyloan-->
+	<!--password:easyloan-->
+	<!--表名 -->
+	<sql id="tableName">
+		SYS_CREATECODE
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		PACKAGENAME,	
+		OBJECTNAME,	
+		TABLENAME,	
+		FIELDLIST,	
+		CREATETIME,	
+		TITLE,	
+		CREATECODE_ID,
+		FHTYPE
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{PACKAGENAME},	
+		#{OBJECTNAME},	
+		#{TABLENAME},	
+		#{FIELDLIST},	
+		#{CREATETIME},	
+		#{TITLE},	
+		#{CREATECODE_ID},
+		#{FHTYPE}
+	</sql>
+	
+	<!-- 新增-->
+	<insert id="save" parameterType="pd">
+		insert into
+		<include refid="tableName"></include>
+		(
+		<include refid="Field"></include>	
+		) values (
+		<include refid="FieldValue"></include>	
+		)
+	</insert>
+	
+	<!-- 删除-->
+	<delete id="delete" parameterType="pd">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			CREATECODE_ID = #{CREATECODE_ID}
+	</delete>
+	
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+			CREATECODE_ID = #{CREATECODE_ID}
+	</select>
+	
+	<!-- 列表 -->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where
+			1=1 and
+		FHTYPE = #{pd.flag}
+		<if test="pd.keywords!= null and pd.keywords != ''"><!-- 检索 -->
+			and (
+				TITLE LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%')
+				or
+				OBJECTNAME LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%')
+				or
+				TABLENAME LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%')
+				)
+		</if>
+		order by CREATETIME desc
+	</select>
+	
+	<!-- 列表(主表) -->
+	<select id="listFa" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where
+			FHTYPE = 'fathertable'
+	</select>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteAll" parameterType="String">
+		delete from
+	<include refid="tableName"></include>
+		where 
+			CREATECODE_ID in
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                 #{item}
+		</foreach>
+	</delete>
+	
+</mapper>
+
+
+		<!--create table SYS_CREATECODE-->
+		<!--(-->
+		<!--CREATECODE_ID VARCHAR2(100) not null-->
+		<!--primary key,-->
+		<!--PACKAGENAME   VARCHAR2(50),-->
+		<!--OBJECTNAME    VARCHAR2(50),-->
+		<!--TABLENAME     VARCHAR2(2000),-->
+		<!--FIELDLIST     CLOB,-->
+		<!--CREATETIME    VARCHAR2(100),-->
+		<!--TITLE         VARCHAR2(255),-->
+		<!--FHTYPE        VARCHAR2(32)-->
+		<!--)-->
+		<!--comment on table SYS_CREATECODE is '???????'-->
+		<!--comment on column SYS_CREATECODE.PACKAGENAME is '??'-->
+		<!--comment on column SYS_CREATECODE.OBJECTNAME is '??'-->
+		<!--comment on column SYS_CREATECODE.TABLENAME is '??'-->
+		<!--comment on column SYS_CREATECODE.FIELDLIST is '???'-->
+		<!--comment on column SYS_CREATECODE.CREATETIME is '????'-->
+		<!--comment on column SYS_CREATECODE.TITLE is '??'-->
+

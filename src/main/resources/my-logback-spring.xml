@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 属性描述 scan：设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true scanPeriod:设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当scan为true时，此属性生效。默认的时间间隔为1分钟。
+    debug:当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。 -->
+
+<configuration scan="true" scanPeriod="30 seconds" debug="true" packagingData="true">
+    <property resource="application.properties" />
+    <timestamp key="bySecond" datePattern="yyyy-MM-dd" />
+    <property name="logTextPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread{10}] %logger{80} [%L] - %msg%n"/>
+
+    <!-- 按照每天生成日志文件RollingFileAppender滚动记录文件，先将日志记录到指定文件，当符合某个条件时，将日志记录到其他文件。有以下子节点：-->
+	<!-- RollingFileAppender是FileAppender的子类，指定日志输出到文件，不过他可以配置按照某种规则备份之前输出的日志的文件，然后重新生成一个文件输出新的日志 -->
+	<!-- RollingFileAppender有两个主要的组成:
+	1. rollingPolicy：
+	当发生滚动时，决定RollingFileAppender的行为，涉及文件移动和重命名。属性class定义具体的滚动策略类。
+	
+	ch.qos.logback.core.rolling.TimeBasedRollingPolicy： 最常用的滚动策略，它根据时间来制定滚动策略，既负责滚动也负责出发滚动。有以下子节点：
+	fileNamePattern：必要节点，包含文件名及“%d”转换符，“%d”可以包含一个java.text.SimpleDateFormat指定的时间格式，如：%d{yyyy-MM}。如果直接使用 %d，默认格式是 yyyy-MM-dd。RollingFileAppender的file字节点可有可无，通过设置file，可以为活动文件和归档文件指定不同位置，当前日志总是记录到file指定的文件（活动文件），活动文件的名字不会改变；
+	***如果没设置file，活动文件的名字会根据fileNamePattern 的值，每隔一段时间改变一次。“/”或者“\”会被当做目录分隔符。***
+	maxHistory：日志最大保存的日期。比如如果你设置的pattern是按天算的，那么设置maxHistory为30，那么会自动删除30天之前的日志。
+	totalSizeCap：日志最大保存的大小。当超过该值，会自动删除老的日志文件。必须和maxHistory一起使用，而且maxHistory先生效，其次是判断是否达到totalSizeCap。
+	cleanHistoryOnStart：默认false。如果设置为true，再项目启动的时候会自动删除老的日志文件。
+	
+	2. triggeringPolicy:
+	告知 RollingFileAppender 什么时候激活滚动。
+	ch.qos.logback.core.rolling.FixedWindowRollingPolicy 根据固定窗口算法重命名文件的滚动策略。有以下子节点：
+	minIndex:窗口索引最小值
+	maxIndex:窗口索引最大值，当用户指定的窗口过大时，会自动将窗口设置为12。
+	fileNamePattern:必须包含“%i”例如，假设最小值和最大值分别为1和2，命名模式为 mylog%i.log,会产生归档文件mylog1.log和mylog2.log。还可以指定文件压缩选项，例如，mylog%i.log.gz。 -->
+
+    <appender name="FILE"  class="ch.qos.logback.core.rolling.RollingFileAppender">
+    	 <!-- 输出log到文件中。通过file属性决定输出到哪个文件中，通过append属性决定当文件存在时是追加输出日志，还是删掉旧文件重新生成一个输出日志 -->
+    	<file>${log.path}/${application.name}.log</file>
+    	<!-- <append>false</append> -->
+        <!-- filter过滤会影响性能 -->
+        <!--<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>-->
+        
+        <!-- 按照每天生成日志文件 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的位置  可相对、和绝对路径 按天回滚-->
+            <fileNamePattern>${log.path}/%d{yyyy-MM-dd}/${application.name}.%i.log.zip</fileNamePattern>
+            <maxFileSize>${log.size}</maxFileSize>
+            <!-- 最大保存10天 -->
+            <maxHistory>10</maxHistory>
+            <!-- 日志总保存量为10GB -->
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+        <!--<encoder>
+            encoder 用来格式化输出： 默认配置为PatternLayoutEncoder 
+　　　　    %d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+　　　　</encoder>-->
+        <!--日志文件大小超限后,回滚,压缩日志文件-->
+        <!--<rollingPolicy class="ch.qos.logback.core.rolling.MyFixedWindowRollingPolicy">
+		    <fileNamePattern>${log.path}/${bySecond}/${application.name}.%i.log.zip</fileNamePattern>
+	    　　<minIndex>1</minIndex>
+	    　　<maxIndex>20</maxIndex> 
+		</rollingPolicy>-->
+        
+		<!--<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<MaxFileSize>${log.size}</MaxFileSize>
+		</triggeringPolicy>-->
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<pattern>${logTextPattern}</pattern>
+		</layout>
+    </appender>
+
+	<!--下层路径或具体类 配置的日志级别  低于 上层路径的日志级别时  决定者为 上层
+	下层路径或具体类 配置的日志级别  高于 上层路径的日志级别时  决定者为 下层-->
+
+	<!-- %m输出的信息, %p日志级别, %t线程名, %d日期, %c类的全名, %i索引 -->
+    <!-- appender是configuration的子节点,是负责写日志的组件 -->
+    <!-- ConsoleAppender把日志输出到控制台 -->
+    <!--    <property name="CONSOLE_LOG_PATTERN" value="%date{yyyy-MM-dd HH:mm:ss} | %highlight(%-5level) | %boldYellow(%thread) | %boldGreen(%logger) | %msg%n"/> -->
+	<!-- 子节点<appender>：负责写日志的组件，它有两个必要属性name和class。name指定appender名称，class指定appender的全限定名 -->
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<!-- 过滤调除了info以外的日志，只打印info的日志 -->
+		    <!-- 级别过滤器，根据日志级别进行过滤。如果日志级别等于配置级别，过滤器会根据 onMath 和 onMismatch 接收或拒绝日志。
+		         <level> : 设置过滤级别。
+		    　　 <onMatch> : 用于配置符合过滤条件的操作。
+		    　　 <onMismatch> : 用于配置不符合过滤条件的操作。 
+		    	执行一个过滤器会有返回个枚举值，即DENY，NEUTRAL，ACCEPT其中之一。
+　　　　        返回DENY，日志将立即被抛弃不再经过其他过滤器；
+　　　　		返回NEUTRAL，有序列表里的下个过滤器过接着处理日志；
+　　　　		返回ACCEPT，日志会被立即处理，不再经过剩余过滤器。-->
+        <!--<filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>info</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>-->
+        <!-- 临界值过滤器，过滤掉低于指定临界值的日志。当日志级别等于或高于临界值时，过滤器返回NEUTRAL；当日志级别低于临界值时，日志会被拒绝。
+        　　　　有以下子节点 :
+        　　　　　　<level> : 设置过滤级别。
+        　　　　例如：过滤掉所有低于info级别的日志。 -->
+        <!--<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>-->
+        <!-- encoder 默认配置为PatternLayoutEncoder --> 
+        <!-- 对日志进行格式化 -->
+        <encoder>
+<!--
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %boldYellow(%-5level) [%10thread] %magenta(%class) %red(%file) %green(%logger{80}) &#45;&#45; %cyan(%method) [%L] - %msg%n</pattern>
+-->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %boldYellow(%-5level) [%10thread] %green(%logger{80}) %cyan(%M) [%L] - %msg%n</pattern>
+        </encoder>
+	    <!--<encoder>
+                <pattern>${logTextPattern}</pattern>
+            &lt;!&ndash;<pattern>%date{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) (%file:%line\)- %m%n</pattern> &ndash;&gt;
+            &lt;!&ndash; 控制台也要使用utf-8，不要使用gbk &ndash;&gt;
+            &lt;!&ndash; <charset>UTF-8</charset>&ndash;&gt;
+        </encoder>-->
+	</appender>
+    <logger name="org.thymeleaf.TemplateEngine" value="INFO" />
+
+		<!-- 日志输出级别 TRACE < DEBUG < INFO < WARN < ERROR-->
+		<!--现发现此处可以控制SQL的打印-->
+    <root level="${log.level}">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
+    </root>
+
+</configuration>
