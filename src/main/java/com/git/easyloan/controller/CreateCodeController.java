@@ -446,7 +446,7 @@ public class CreateCodeController extends BaseController {
         }
 
 
-        if(Const.DBTYPE_MYSQL.equals(dbType)){
+        if(Const.DBTYPE_MYSQL.equals(dbType) || Const.DBTYPE_H2.equals(dbType)){
             /*生成mybatis xml*/
             Freemarker.printFile("mapperMysqlTemplate.ftl", root, "mybatis_mysql/"+packageName+"/"+objectName+"Mapper.xml", filePath, ftlPath);
             /*生成SQL脚本*/

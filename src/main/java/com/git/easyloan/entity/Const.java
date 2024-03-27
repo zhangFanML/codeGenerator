@@ -49,6 +49,7 @@ public class Const {
     public static final String DBTYPE_ORACLE = "oracle";
     public static final String DBTYPE_SQLSERVER = "sqlserver";
     public static final String DBTYPE_DB2 = "db2";
+    public static final String DBTYPE_H2 = "H2";
     public static final String DBTYPE_POSTGRESQL = "PostgreSQL";
 
 }

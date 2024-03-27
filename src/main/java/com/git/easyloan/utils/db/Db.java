@@ -58,6 +58,9 @@ public class Db {
         } else if ("db2".equalsIgnoreCase(dbtype)) {
             Class.forName("com.ibm.db2.jcc.DB2Driver");
             return DriverManager.getConnection("jdbc:db2://" + dburl + "/" + databaseName, username, password);
+        } else if ("H2".equalsIgnoreCase(dbtype)) {
+            Class.forName("org.h2.Driver");
+            return DriverManager.getConnection("jdbc:h2:D:/1024/workspace/RuoYi", username, password);
         } else {
             throw new SQLException("暂不支持该类型的数据库！");
         }
@@ -67,6 +70,9 @@ public class Db {
         try {
             ArrayList<String> listTb = new ArrayList<>();
             DatabaseMetaData meta = conn.getMetaData();
+            if(conn.toString().contains("h2")){
+                schema = null;
+            }
             ResultSet rs = meta.getTables(null, schema, "%", new String[]{"TABLE"});
             while(rs.next()) {
                 listTb.add(rs.getString("TABLE_NAME"));

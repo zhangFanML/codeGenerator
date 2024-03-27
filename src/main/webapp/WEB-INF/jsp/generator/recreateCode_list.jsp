@@ -53,6 +53,7 @@
 																<option value="oracle">Oracle</option>
 																<option value="sqlserver">Sqlserver</option>
 																<option value="db2">DB2</option>
+																<option value="H2">H2</option>
 															</select>
 														</td>
 														<td>&nbsp;地址：</td>
